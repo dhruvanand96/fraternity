@@ -1,10 +1,17 @@
 # Fraternity
 
-Angular is used as front end and go in backend with data bieng persists in files 
+Angular is used as front end and go in backend with data bieng persisted in files 
 
 feature availaible -
 User Creation
+
 Authentication using JWT
+
+
+Future enchancments
+integrate mysql 
+add more features in fraternity application
+
 
 
 
