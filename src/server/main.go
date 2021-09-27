@@ -468,6 +468,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		u.Id = 1
 		userData = &UserData{}
 	} else {
+
 		u.Id = len(userData.UserArray) + 1
 	}
 
