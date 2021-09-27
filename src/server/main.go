@@ -464,7 +464,13 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	var u User
 	_ = json.NewDecoder(r.Body).Decode(&u)
 
-	u.Id = len(userData.UserArray) + 1
+	if userData == nil || len(userData.UserArray) == 0 {
+		u.Id = 1
+		userData = &UserData{}
+	} else {
+		u.Id = len(userData.UserArray) + 1
+	}
+
 	userData.UserArray = append(userData.UserArray, u)
 
 	jsonData, err := json.Marshal(userData)
@@ -476,7 +482,6 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	err = os.Truncate("/tmp/user-data.json", 200)
 	if err != nil {
 		log.Fatal(err)
-
 	}
 
 	err = ioutil.WriteFile("/tmp/user-data.json", jsonData, 0777)
