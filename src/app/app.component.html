@@ -1,5 +1,5 @@
 <!-- Loading spinner -->
-<div *ngIf="loading" class="loading-container">
+<div *ngIf="loading$ | async" class="loading-container">
   <mat-progress-spinner
     color="primary"
     mode="indeterminate">
@@ -12,4 +12,3 @@
     <router-outlet></router-outlet>
   </div>
 </div>
-

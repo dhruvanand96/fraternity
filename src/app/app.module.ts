@@ -1,4 +1,3 @@
-import { GalleryEffect } from './gallery/gallery.effect';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
@@ -7,18 +6,18 @@ import { AppComponent } from './app.component';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {MatInputModule} from '@angular/material/input';
 import { HomeComponent } from './home/home.component'
 import {MatTableModule} from '@angular/material/table';
-import { AuthInterceptor } from './_services/_helpers/auth.interceptor';
+import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { ToastrModule } from 'ngx-toastr';
-import {MatIconModule} from '@angular/material/icon';
 import { StoreModule } from '@ngrx/store';
-import {  userReducer } from './store/reducer/user.reducer';
+import { userReducer } from './store/users/user.reducer';
 import { EffectsModule } from '@ngrx/effects';
+import { UserEffects } from './store/users/user.effects';
 
 
 @NgModule({
@@ -32,15 +31,13 @@ import { EffectsModule } from '@ngrx/effects';
     BrowserModule,
     HttpClientModule,
     AppRoutingModule,
-    FormsModule,
     ReactiveFormsModule,
     BrowserAnimationsModule,
     MatInputModule,
     MatTableModule,
     MatProgressSpinnerModule,
-    MatIconModule,
     StoreModule.forRoot({ user: userReducer }),
-    EffectsModule.forRoot([GalleryEffect]),
+    EffectsModule.forRoot([UserEffects]),
     ToastrModule.forRoot()
 
   ],

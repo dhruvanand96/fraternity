@@ -1,21 +1,12 @@
-import { UserService } from './../_services/user.service';
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../_services/auth.service';
+import { AuthService } from '../core/services/auth.service';
+import { TokenStorageService } from '../core/services/token-storage.service';
 import { Router } from '@angular/router';
 import { Store, select } from '@ngrx/store';
-import { removeUserById } from '../store/selector/user.selectors';
-import { invokeDeleteAPI } from '../store/action/user.actions';
-
-
-export interface Element {
-  Name: string;
-  email: string;
-  id: number;
-  password: string;
-}
-
-const ELEMENT_DATA: Element[] = [
-];
+import { Observable } from 'rxjs';
+import { User } from '../models/user';
+import { deleteUser, loadUsers } from '../store/users/user.actions';
+import { selectUsers } from '../store/users/user.selectors';
 
 
 @Component({
@@ -27,46 +18,32 @@ const ELEMENT_DATA: Element[] = [
 export class HomeComponent implements OnInit {
 
 
-  selectedAlbumId = -1;
-  allUsers$ = this.store.pipe(
-    select(removeUserById(this.selectedAlbumId))
-  );
+  readonly displayedColumns = ['id', 'name', 'email', 'actions'];
+  readonly users$: Observable<User[]>;
 
-  displayedColumns: string[] = ['id','name','email', 'actions' ];
-  dataSource = ELEMENT_DATA;
-
-  constructor( private _UserService : UserService,
-               private authService: AuthService,
-               private router: Router,
-               private store: Store<{ user: any[] }>,) {
-   }
+  constructor(
+    private readonly authService: AuthService,
+    private readonly tokens: TokenStorageService,
+    private readonly router: Router,
+    private readonly store: Store
+  ) {
+    this.users$ = this.store.pipe(select(selectUsers));
+  }
 
 
   ngOnInit(): void {
-    this._UserService.getUsers().subscribe( (res: any) => {
-
-      if (res.user_array != null){
-        this.dataSource =  res.user_array
-      }
-    })
+    this.store.dispatch(loadUsers());
   }
 
 
-  submit(){
-    this.authService.logout().subscribe( (res: any) => {
-        this.router.navigate(['login']);
-    })
+  logout(): void {
+    this.authService.logout().subscribe(() => {
+      this.tokens.clear();
+      void this.router.navigate(['/login']);
+    });
   }
 
-  deleteUser(user: any){
-    this.store.dispatch(invokeDeleteAPI(user));
-  // this._UserService.deleteUser(user).subscribe( (res: any) =>{})
-  this._UserService.getUsers().subscribe( (res: any) => {
-
-    if (res.user_array != null){
-      this.dataSource =  res.user_array
-    }
-  })
+  deleteUser(user: User): void {
+    this.store.dispatch(deleteUser({ id: user.id }));
   }
-
 }

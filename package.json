@@ -3,11 +3,14 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "./serve.sh",
+    "start": "sh ./serve.sh",
+    "start:web": "ng serve",
+    "start:api": "cd src/server && go run ./cmd/api",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "install-dependencies": "npm install && go get github.com/codegangsta/gin && go get ./src/server/..."
+    "test:api": "cd src/server && go test ./...",
+    "install-dependencies": "npm install && cd src/server && go mod download"
   },
   "private": true,
   "dependencies": {

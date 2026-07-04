@@ -1,7 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { delay } from 'rxjs/operators';
-import { DataServiceService } from './data-service.service';
-import { LoadingService } from './_services/loading.service';
+import { Component } from '@angular/core';
+import { Observable } from 'rxjs';
+import { LoadingService } from './core/services/loading.service';
 
 
 @Component({
@@ -11,29 +10,11 @@ import { LoadingService } from './_services/loading.service';
 })
 
 
-export class AppComponent implements OnInit {
+export class AppComponent {
+  readonly title = 'fraternity';
+  readonly loading$: Observable<boolean>;
 
-  title: any;
-  loading: boolean = false;
-
-  constructor(
-    private _loading: LoadingService
-  ){ }
-
-  ngOnInit() {
-    this.listenToLoading();
+  constructor(loading: LoadingService) {
+    this.loading$ = loading.loading$;
   }
-
-  /**
-   * Listen to the loadingSub property in the LoadingService class. This drives the
-   * display of the loading spinner.
-   */
- listenToLoading(): void {
-  this._loading.loadingSub
-    .pipe(delay(0)) // This prevents a ExpressionChangedAfterItHasBeenCheckedError for subsequent requests
-    .subscribe((loading) => {
-      this.loading = loading;
-    });
-}
-
 }

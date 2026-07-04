@@ -1,7 +1,8 @@
 import { Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { AuthService } from '../_services/auth.service';
+import { AuthService, Registration } from '../core/services/auth.service';
+import { TokenStorageService } from '../core/services/token-storage.service';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
@@ -14,40 +15,42 @@ export class RegisterComponent implements OnInit {
 
   registerForm = new FormGroup({
 
-    name: new FormControl('',Validators.required),
-    email: new FormControl('',Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$")),
-    password: new FormControl('',Validators.required),
-    confirmPassword:  new FormControl('',Validators.required)
+    name: new FormControl('', Validators.required),
+    email: new FormControl('', [Validators.required, Validators.email]),
+    password: new FormControl('', Validators.required),
+    confirmPassword: new FormControl('', Validators.required)
 
   });
-  constructor(private router : Router,
-              private authService : AuthService,
-              private toastr: ToastrService ) { }
+  constructor(
+    private readonly router: Router,
+    private readonly authService: AuthService,
+    private readonly tokens: TokenStorageService,
+    private readonly toastr: ToastrService
+  ) {}
 
   ngOnInit(): void {
   }
 
-  onSubmit() {
-    // TODO: Use EventEmitter with form value
-
-    if (this.registerForm.value.password != this.registerForm.value.confirmPassword){
-      this.toastr.error("Password do not match", "")
-      return
+  onSubmit(): void {
+    if (this.registerForm.invalid) {
+      return;
     }
-    this.authService.register(this.registerForm.value).subscribe( (res: any) => {
-      if (res.error === '' ){
-        this.authService.login({"email":this.registerForm.value.email,"password":this.registerForm.value.password}).subscribe(
-          (res: any) => {
-          if ( res["access-token"] != "" && res.error == ""){
-            this.toastr.success("User successfully Created..!", "")
-            localStorage.setItem('login-token', res["access-token"])
-            this.router.navigate(['home']);
-          }else{
-            this.toastr.error("Error in Registration", "")
-          }
-        })
-      }
-    })
+    const values = this.registerForm.value as Registration & { confirmPassword: string };
+    if (values.password !== values.confirmPassword) {
+      this.toastr.error('Passwords do not match.');
+      return;
+    }
+    const registration: Registration = {
+      name: values.name,
+      email: values.email,
+      password: values.password
+    };
+    this.authService.register(registration).subscribe(() => {
+      this.authService.login(registration).subscribe(response => {
+        this.tokens.save(response['access-token'], response.user);
+        this.toastr.success('User successfully created.');
+        void this.router.navigate(['/home']);
+      });
+    });
   }
-
 }
